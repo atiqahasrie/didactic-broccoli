@@ -1,0 +1,164 @@
+//this code is using U8g2lib library and OLED size is 128×64
+
+#include <U8g2lib.h>
+
+//display dimensions
+U8G2_SH1106_128×64_NONAME_F_HW_I2C u8g2(U8G2_R0);
+const int SCREEN_WIDTH = 128;
+const int SCREEN_HEIGHT = 64;
+
+//eye parameters 
+int ref_eye_width =25;
+int ref_eye_height = 31;
+int ref_corner_radius = 4;
+int ref_space_between_eye = 10;
+
+int left_eye_x, left_eye_y;
+int right_eye_x,right_eye_y;
+int left_eye_width = ref_eye_width;
+int left_eye_height = ref_eye_height;
+int right_eye_width = ref_eye_width;
+int right_eye_height = ref_eye_height;
+
+//OLED display
+
+void draw_eyes() {
+  u8g2.clearBuffer();
+  u8g2.drawRBox(left_eye_x - left_eye_width / 2, left_eye_y - left_eye_height / 2,
+                left_eye_width, left_eye_height, ref_corner_radius);
+  u8g2.drawRBox(right_eye_x - right_eye_width / 2, right_eye_y - right_eye_height / 2,
+                right_eye_width, right_eye_height, ref_corner_radius);
+  u8g2.sendBuffer();
+}
+
+void center_eyes() {
+  left_eye_height = ref_eye_height;
+  left_eye_width = ref_eye_width;
+  right_eye_height = ref_eye_height;
+  right_eye_width = ref_eye_width;
+
+  left_eye_x = SCREEN_WIDTH / 2 - ref_eye_width / 2 - ref_space_between_eye / 2;
+  left_eye_y = SCREEN_HEIGHT / 2;
+  right_eye_x = SCREEN_WIDTH / 2 + ref_eye_width / 2 + ref_space_between_eye / 2;
+  right_eye_y = SCREEN_HEIGHT / 2;
+
+  draw_eyes();
+  delay (1000);
+}
+void blink() {
+  left_eye_x = SCREEN_WIDTH / 2 - ref_eye_width / 2 - ref_space_between_eye / 2;
+  left_eye_y = SCREEN_HEIGHT / 2;
+  right_eye_x = SCREEN_WIDTH / 2 + ref_eye_width / 2 + ref_space_between_eye / 2;
+  right_eye_y = SCREEN_HEIGHT / 2;
+
+  for (int i = 0; i < 3; i++) {
+    left_eye_height = 18;
+    right_eye_height = 18;
+    draw_eyes();
+    delay(300);
+    left_eye_height = 30;
+    right_eye_height = 30;
+    draw_eyes();
+    delay(300);
+  }
+}
+void move_big_eye(int direction) {
+  //direction == -1 :  move left
+  //direction == 1 :  move right
+
+  int direction_oversize = 1;
+  int direction_movement_amplitude = 2;
+  int blink_amplitude = 5;
+
+  for (int i = 0; i < 3; i++) {
+    left_eye_x += direction_movement_amplitude * direction;
+    right_eye_x += direction_movement_amplitude * direction;
+    right_eye_height -= blink_amplitude;
+    left_eye_height -= blink_amplitude;
+    if (direction > 0) {
+      right_eye_height += direction_oversize;
+      right_eye_width += direction_oversize;
+    } else {
+      left_eye_height += direction_oversize;
+      left_eye_width += direction_oversize;
+    }
+
+    draw_eyes();
+    delay(1);
+  }
+  for (int i = 0; i < 3; i++) {
+    left_eye_x += direction_movement_amplitude * direction;
+    right_eye_x += direction_movement_amplitude * direction;
+    right_eye_height += blink_amplitude;
+    left_eye_height += blink_amplitude;
+    if (direction > 0) {
+      right_eye_height += direction_oversize;
+      right_eye_width += direction_oversize;
+    } else {
+      left_eye_height += direction_oversize;
+      left_eye_width += direction_oversize;
+    }
+    draw_eyes();
+    delay(1);
+  }
+
+  delay(1000);
+
+  for (int i = 0; i < 3; i++) {
+    left_eye_x -= direction_movement_amplitude * direction;
+    right_eye_x -= direction_movement_amplitude * direction;
+    right_eye_height -= blink_amplitude;
+    left_eye_height -= blink_amplitude;
+    if (direction > 0) {
+      right_eye_height -= direction_oversize;
+      right_eye_width -= direction_oversize;
+    } else {
+      left_eye_height -= direction_oversize;
+      left_eye_width -= direction_oversize;
+    }
+    draw_eyes();
+    delay(1);
+  }
+  for (int i = 0; i < 3; i++) {
+    left_eye_x -= direction_movement_amplitude * direction;
+    right_eye_x -= direction_movement_amplitude * direction;
+    right_eye_height += blink_amplitude;
+    left_eye_height += blink_amplitude;
+    if (direction > 0) {
+      right_eye_height -= direction_oversize;
+      right_eye_width -= direction_oversize;
+    } else {
+      left_eye_height -= direction_oversize;
+      left_eye_width -= direction_oversize;
+    }
+    draw_eyes();
+    delay(1);
+  }
+}
+void move_right_big_eye() {
+  move_big_eye(1);
+}
+void move_left_big_eye() {
+  move_big_eye(-1);
+}
+
+void setup () {
+
+Serial.begin (115200);
+
+u8g2.begin ();
+u8g2.setFont(u8g2 _font_ncenB14_tr);
+center_ eyes ();
+blink ();
+}
+
+void loop() {
+  blink();
+  center_eyes();
+  move_right_big_eye();
+  center_eyes();
+  move_left_big_eye();
+  center_eyes();
+  blink();
+  center_eyes();
+}
