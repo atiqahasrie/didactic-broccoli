@@ -1,0 +1,59 @@
+//touch sensor
+
+// RGB LED Pins
+const int redPin = 25;
+const int greenPin = 26;
+const int bluePin = 27;
+
+// Touch Pin (T0 = GPIO 4)
+const int touchPin = T0;
+
+// Touch detection threshold (adjust based on readings)
+const int touchThreshold = 50;
+
+// RGB "Happy Light" Effect (color fading)
+void happyLightEffect() {
+  // Red to Green
+  for (int i = 0; i < 255; i++) {
+    setColor(255 - i, i, 0);
+    delay(10);
+  }
+  // Green to Blue
+  for (int i = 0; i < 255; i++) {
+    setColor(0, 255 - i, i);
+    delay(10);
+  }
+  // Blue to Red
+  for (int i = 0; i < 255; i++) {
+    setColor(i, 0, 255 - i);
+    delay(10);
+  }
+}
+// Helper function to set RGB color
+void setColor(int red, int green, int blue) {
+  analogWrite(redPin, red);
+  analogWrite(greenPin, green);
+  analogWrite(bluePin, blue);
+}
+void setup() {
+  // Initialize Bluetooth
+  Serial.begin(115200);
+}
+void loop() {
+  blink();
+  center_eyes();
+  move_right_big_eye();
+  center_eyes();
+  move_left_big_eye();
+  center_eyes();
+  blink();
+  center_eyes();
+  
+  int touchValue = touchRead(touchPin);
+  Serial.println(touchValue);
+
+  if (touchValue < touchThreshold) { // If touched
+    happyLightEffect(); // Run RGB animation
+  } else {
+    setColor(0, 0, 0); // Turn off LED
+}
